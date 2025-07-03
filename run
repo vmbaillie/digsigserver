@@ -1,0 +1,16 @@
+#!/bin/bash
+### need to make sure that in home dir a file imx-cst-keys.tar.gz that contains only
+### crts/SRK_1_2_3_4_fuse.bin and crts/SRK_1_2_3_4.bin
+###
+### then ensure CST.4.0.0 within IMX_CST_TOOL_NEW.tgz is in docker/nxp_tools of this git repo
+### 
+docker build -f docker/Dockerfile.nxp-hsm -t digsigserver .
+docker run --rm --privileged \
+	--name digsigserver \
+	-p 9999:9999 \
+	--network=host \
+	-v /dev/bus/usb:/dev/bus/usb \
+	--mount type=bind,source=$HOME/imx-cst-keys.tar.gz,target=/digsigserver/imx8mp-fb5/imxsign/imx-cst-keys.tar.gz,readonly \
+	--env "YUBIHSM_PASSWORD=0001password" \
+	-it digsigserver
+# docker exec -it digsigserver bash
