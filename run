@@ -1,0 +1,9 @@
+#!/bin/bash
+docker build -f docker/Dockerfile.nxp-hsm -t digsigserver .
+docker run --rm --privileged \
+	--name digsigserver \
+	-v ~/keys/:/digsigserver/imx8mp-fb5/imxsign/ \
+	-p 9999:9999 \
+	--env "YUBIHSM_PASSWORD=0001password" \
+	-it digsigserver
+# docker exec -it digsigserver bash
