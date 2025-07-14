@@ -372,6 +372,9 @@ def attach_endpoints(app: Sanic):
         f = validate_upload(req, "sw-description")
         if not f:
             return text("Invalid sw-description", status=400)
+        keylabel = req.form.get("keylabel")
+        if not keylabel:
+            keylabel = "n/a"
         with tempfile.TemporaryDirectory() as workdir:
             try:
                 s = SwupdateSigner(app, workdir, distro)
@@ -384,7 +387,8 @@ def attach_endpoints(app: Sanic):
                 infile.write(f.body.decode('UTF-8'))
             if await asyncio.get_running_loop().run_in_executor(None, s.sign,
                                                                 method, "sw-description",
-                                                                outfile.name):
+                                                                outfile.name,
+                                                                keylabel):
                 await return_file(req, outfile.name, "sw-description.sig")
                 response = None
             else:

@@ -1,4 +1,5 @@
 import shutil
+import os
 from digsigserver.signers import Signer
 from sanic import Sanic
 
@@ -13,7 +14,7 @@ class SwupdateSigner(Signer):
         self.signcmd = signcmd
         super().__init__(app, workdir, distro)
 
-    def sign(self, method: str, sw_description: str, outfile: str) -> bool:
+    def sign(self, method: str, sw_description: str, outfile: str, keylabel: str) -> bool:
         if method == "RSA":
             privkey = self.keys.get('rsa-private.key')
             if not privkey:
@@ -27,6 +28,13 @@ class SwupdateSigner(Signer):
             cmd = [self.signcmd, 'cms', '-sign', '-in', sw_description, '-out', outfile,
                    '-signer', cms_cert, '-inkey', cms_key, '-outform', 'DER',
                    '-nosmimecap', '-binary']
+        elif method == "RSA-HSM":
+            pin = os.environ.get('YUBIHSM_PASSWORD')
+            cmd = [ "pkcs11-tool", "--module", "/usr/lib/x86_64-linux-gnu/pkcs11/yubihsm_pkcs11.so", "--sign",
+                    "--label", keylabel, "--mechanism", "SHA256-RSA-PKCS",
+                    "--input-file", sw_description, "--output-file", outfile,
+                    "--pin", pin ]
+
         else:
             raise RuntimeError('Unrecognized signing method {} - must be RSA or CMS'.format(method))
 

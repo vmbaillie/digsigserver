@@ -27,8 +27,8 @@ class KeyFiles:
         self.keyfileuri = '{}/{}/{}/'.format(app.config.get('KEYFILE_URI'),
                                              machine_or_distro, signtype)
         self.tmpdir = None
-        if not utils.uri_exists(self.keyfileuri, is_dir=True):
-            raise RuntimeError('no key files found for {}/{}'.format(signtype, machine_or_distro))
+        #if not utils.uri_exists(self.keyfileuri, is_dir=True):
+        #    raise RuntimeError('no key files found for {}/{}'.format(signtype, machine_or_distro))
 
     def get(self, keyname: str) -> str:
         if not self.tmpdir:
